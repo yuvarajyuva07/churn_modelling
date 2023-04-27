@@ -1,0 +1,46 @@
+import numpy as np
+import pandas as pd 
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+data= pd.read_csv(r"/content/Churn_Modelling.csv")
+data.head(8)
+data.info
+df = data.copy()
+gender= pd.get_dummies(df['Gender'],drop_first=True)
+geo=pd.get_dummies(df['Geography'],drop_first=True)
+df= pd.concat((df,gender,geo),axis=1)
+cat_features = ['Spain','Germany','Male','NumOfProducts','HasCrCard','IsActiveMember']
+num_features = ['Tenure','Balance','EstimatedSalary','Age','CreditScore']
+for i in cat_features:
+    ax=sns.countplot(x=df[i], data=df);
+    plt.title(i)
+    plt.show()
+for i in num_features:
+    plt.hist(df[i],   edgecolor='black',linewidth=2)
+    plt.title(i)
+    plt.show()
+df.isnull().sum()
+df = df.drop(['Gender','Geography'],axis=1)
+Remove = ['RowNumber', 'CustomerId', 'Surname','EstimatedSalary','HasCrCard','CreditScore','Germany']
+df = df.drop(Remove,axis=1)
+X_train,X_test,Y_train,Y_test= train_test_split(X,Y,test_size=0.3,random_state=1234,stratify=Y)
+from sklearn.ensemble import RandomForestClassifier
+model1 = RandomForestClassifier(random_state=42)  
+model = LogisticRegression()
+model1.fit(X_train,Y_train)
+Y_predict = model1.predict(X_test)
+cm = confusion_matrix(Y_test,Y_predict)
+cm
+model1.score(X_test,Y_test)
+
+
+
